@@ -15,7 +15,7 @@ from crm_ara_ekran import *  # crm_ara_ekran sınıfını import et
 
 import gspread
 
-credentials = 'C:\wRhere_crm_Project\wrherecrmproject-609f4fae20b3.json'
+credentials = 'wrherecrmproject-609f4fae20b3.json'
 
 gc = gspread.service_account(filename=credentials)
 

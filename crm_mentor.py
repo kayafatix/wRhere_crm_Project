@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import QTableWidgetItem
 from crm_ara_ekran import *
 # from thefuzz import fuzz, process
 # Kimlik doğrulama bilgilerini yükleyin
-credentials = 'C:\wRhere_crm_Project\wrherecrmproject-609f4fae20b3.json'  # Kimlik doğrulama bilgilerinizin JSON dosyasının yolu
+credentials = 'wrherecrmproject-609f4fae20b3.json'  # Kimlik doğrulama bilgilerinizin JSON dosyasının yolu
 # Gspread ile oturumu başlatın
 gc = gspread.service_account(filename=credentials)
 # Google Sheets elektronik tabloyu açın
