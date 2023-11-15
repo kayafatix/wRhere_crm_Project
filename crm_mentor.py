@@ -9,10 +9,24 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import gspread
+from PyQt5.QtWidgets import QTableWidgetItem
+from crm_ara_ekran import *
+# from thefuzz import fuzz, process
+# Kimlik doğrulama bilgilerini yükleyin
+credentials = 'C:\wRhere_crm_Project\wrherecrmproject-609f4fae20b3.json'  # Kimlik doğrulama bilgilerinizin JSON dosyasının yolu
+# Gspread ile oturumu başlatın
+gc = gspread.service_account(filename=credentials)
+# Google Sheets elektronik tabloyu açın
+spreadsheet = gc.open('Mentor')
+# Çalışma sayfasını seçin
+worksheet = spreadsheet.get_worksheet(0)  # İstenilen çalışma sayfasının indeksini değiştirin
+all_values = worksheet.get_all_values()
+del all_values[0]
 
-
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
+class crm_mentor(object):
+    def setupUi(self, MainWindow,all_values):
+        # all_valuesin=all_values
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(979, 591)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -37,12 +51,12 @@ class Ui_MainWindow(object):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
+        self.comboBox.addItem("")
         self.tableWidget_2 = QtWidgets.QTableWidget(self.centralwidget)
         self.tableWidget_2.setGeometry(QtCore.QRect(40, 130, 921, 421))
         self.tableWidget_2.setStyleSheet("")
         self.tableWidget_2.setObjectName("tableWidget_2")
         self.tableWidget_2.setColumnCount(6)
-        self.tableWidget_2.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         self.tableWidget_2.setHorizontalHeaderItem(0, item)
         item = QtWidgets.QTableWidgetItem()
@@ -67,22 +81,80 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.pushButton_8.clicked.connect(self.WidgedFullFull)
+        self.pushButton_5.clicked.connect(self.aramaYap)
+        self.pushButton.clicked.connect(self.oncekiEkranaDon)
+        #self.comboBox.currentTextChanged.connect(self.comboSecimiGetir)
+        
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def aramaYap(self):
+        aranacakMetin = self.lineEdit_2.text()
+        secimiGetir=self.comboBox.currentText()
+        yeniListe=[]
+        for i in all_values:
+            if aranacakMetin in i[1]:
+                if secimiGetir=="":
+                    yeniListe.append(i)
+                elif secimiGetir== i[4]:
+                    yeniListe.append(i)
+                       
+        self.WidgedFull(yeniListe)
+        
+
+    def oncekiEkranaDon(self):
+        self.crm_ara_ekran = crm_ara_ekran() 
+        self.crm_ara_ekran.setupUi(MainWindow)
+        MainWindow.show()
+    
+    # def comboSecimiGetir(self):
+    #     secimiGetir=self.comboBox.currentText()
+    #     yeniListe=[]
+    #     for i in all_values:
+    #         if fuzz.ratio(secimiGetir,i[4])>99:
+    #             yeniListe.append(i)
+            
+    #         if secimiGetir=="":
+    #             yeniListe.append(i)
+    #     self.WidgedFull(yeniListe)
+    
+    
+    def WidgedFullFull(self):
+        self.WidgedFull(all_values)
+        
+    def WidgetEmpty(self):
+        row_count = self.tableWidget_2.rowCount()
+        for i in range(row_count-1,0,-1):
+            self.tableWidget_2.removeRow(i)
+           
+    def WidgedFull(self,veri):
+        self.WidgetEmpty()
+        self.tableWidget_2.setRowCount(len(veri))
+        for i in range(len(veri)):
+            self.tableWidget_2.setItem(i, 0, QTableWidgetItem(str(veri[i][0])))
+            self.tableWidget_2.setItem(i, 1, QTableWidgetItem(str(veri[i][1])))
+            self.tableWidget_2.setItem(i, 2, QTableWidgetItem(str(veri[i][2])))
+            self.tableWidget_2.setItem(i, 3, QTableWidgetItem(str(veri[i][3])))
+            self.tableWidget_2.setItem(i, 4, QTableWidgetItem(str(veri[i][6])))
+            self.tableWidget_2.setItem(i, 5, QTableWidgetItem(str(veri[i][7])))
+            
+            
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Mentor"))
         self.pushButton_5.setText(_translate("MainWindow", "ARA"))
         self.pushButton_8.setText(_translate("MainWindow", "Tum Gorusmeler"))
-        self.comboBox.setItemText(0, _translate("MainWindow", "VIT projesinin tamamına katılması uygun olur"))
-        self.comboBox.setItemText(1, _translate("MainWindow", "VIT projesi ilk IT eğitimi alıp ITPH a yönlendirilmesi uygun olur"))
-        self.comboBox.setItemText(2, _translate("MainWindow", "VIT projesi ingilizce eğitimi alıp ITPH a yönlendirilmesi uygun olur"))
-        self.comboBox.setItemText(3, _translate("MainWindow", "VIT projesi kapsamında direkt ITPH a yönlendirilmesi uygun olur."))
-        self.comboBox.setItemText(4, _translate("MainWindow", "Direkt bireysel koçluk ile işe yönlendirilmesi uygun olur"))
-        self.comboBox.setItemText(5, _translate("MainWindow", "Bir sonraki VIT projesine katilmasi daha uygun olur"))
-        self.comboBox.setItemText(6, _translate("MainWindow", "Başka bir sektöre yönlendirilmeli"))
-        self.comboBox.setItemText(7, _translate("MainWindow", "Diger"))
+        self.comboBox.setItemText(0, _translate("MainWindow", ""))
+        self.comboBox.setItemText(1, _translate("MainWindow", "VIT projesinin tamamına katılması uygun olur"))
+        self.comboBox.setItemText(2, _translate("MainWindow", "VIT projesi ilk IT eğitimi alıp ITPH a yönlendirilmesi uygun olur"))
+        self.comboBox.setItemText(3, _translate("MainWindow", "VIT projesi ingilizce eğitimi alıp ITPH a yönlendirilmesi uygun olur"))
+        self.comboBox.setItemText(4, _translate("MainWindow", "VIT projesi kapsamında direkt ITPH a yönlendirilmesi uygun olur."))
+        self.comboBox.setItemText(5, _translate("MainWindow", "Direkt bireysel koçluk ile işe yönlendirilmesi uygun olur"))
+        self.comboBox.setItemText(6, _translate("MainWindow", "Bir sonraki VIT projesine katilmasi daha uygun olur"))
+        self.comboBox.setItemText(7, _translate("MainWindow", "Başka bir sektöre yönlendirilmeli"))
+        self.comboBox.setItemText(8, _translate("MainWindow", "Diger"))
         item = self.tableWidget_2.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "Gorusme tarihi"))
         item = self.tableWidget_2.horizontalHeaderItem(1)
@@ -102,7 +174,10 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
+    ui = crm_mentor()
+    ui.setupUi(MainWindow,all_values)
     MainWindow.show()
+    ui.WidgedFull(all_values)
     sys.exit(app.exec_())
+    
+    

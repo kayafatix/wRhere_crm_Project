@@ -10,8 +10,27 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+# from crm_mulakat import *
+from crm_ara_ekran import *  # crm_ara_ekran sınıfını import et
 
-class Ui_MainWindow(object):
+import gspread
+
+credentials = 'C:\wRhere_crm_Project\wrherecrmproject-609f4fae20b3.json'
+
+gc = gspread.service_account(filename=credentials)
+
+spreadsheet = gc.open('Mulakatlar')
+
+worksheet = spreadsheet.get_worksheet(0)  # İstenilen çalışma sayfasının indeksini değiştirin
+
+name_column = worksheet.col_values(1) # İlgili sütundan (örneğin, A sütunu) isimleri çekin
+# 1. sütun isimleri içeriyor varsayılan olarak
+
+# Gelen verileri kullanarak name_list listesini güncelleyin
+name_list = name_column[1:]  # Başlık satırını atlayın (varsayılan olarak 1. satır)
+
+
+class crm_mulakat(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(994, 583)
@@ -54,6 +73,109 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+        # ARA düğmesi işlevi
+        self.pushButton_6.clicked.connect(self.search_names)
+        # Proje Gonderilmis Olanlar düğmesi işlevi
+        self.pushButton_10.clicked.connect(self.show_project_sent_candidates)
+
+        # Projesi Gelmis Olanlar düğmesi işlevi
+        self.pushButton_9.clicked.connect(self.show_project_received_candidates)
+
+        # Tercihler Ekranina Geri Don düğmesi işlevi
+        self.pushButton.clicked.connect(self.go_to_preferences_screen)
+
+
+    def search_names(self):
+        
+        name_list = worksheet.get_all_values()  # Tüm verileri al, her satır bir liste içerir
+
+    # ARA düğmesi işlevi - İsim soyisim arama
+        keyword = self.lineEdit.text().strip().lower()  # Kullanıcının girdiği metni al
+    # Eşleşen sonuçları temizle
+        self.tableWidget_3.setRowCount(0)
+    # Eşleşen sonuçları tableWidget_3'e ekleyin
+        row_index = 0
+        for data_row in name_list:
+            name = data_row[0]             # 1. sütun isimleri içeriyor
+            project_sent_date = data_row[1]  # 2. sütun proje gönderilme tarihini içeriyor
+            project_return_date = data_row[2]  # 3. sütun proje geri dönüş tarihini içeriyor.          
+            if keyword in name.lower():
+                self.tableWidget_3.insertRow(row_index)
+                self.tableWidget_3.setItem(row_index, 0, QtWidgets.QTableWidgetItem(name))
+                self.tableWidget_3.setItem(row_index, 1, QtWidgets.QTableWidgetItem(project_sent_date))
+                self.tableWidget_3.setItem(row_index, 2, QtWidgets.QTableWidgetItem(project_return_date))                
+                row_index += 1
+    
+    def show_project_sent_candidates(self):
+        # Proje Gonderilmis Olanlar düğmesi işlevi
+        # Drive'dan proje gönderilmiş adayları alıp tableWidget_3'e ekleyebilirsiniz.
+                        
+        # Google Sheets'ten sadece proje gönderilmiş adayları, proje gönderilme tarihi ve geri dönüş tarihini alın
+        sent_candidates_data = worksheet.get_all_values()  # Tüm verileri al, her satır bir liste içerir
+
+        # Eski verileri temizle
+        self.tableWidget_3.setRowCount(0)
+
+        # Verileri tableWidget_3'e ekleyin
+        row_index = 0
+        for data_row in sent_candidates_data:
+            name = data_row[0]  # 1. sütun isimleri içeriyor
+            project_sent_date = data_row[1]  # 2. sütun proje gönderilme tarihini içeriyor
+            project_return_date = data_row[2]  # 3. sütun proje geri dönüş tarihini içeriyor
+
+            # Sadece proje gönderilmiş adayları ekleyin (proje gönderilme tarihi dolu olanlar)
+            if project_sent_date: 
+                self.tableWidget_3.insertRow(row_index)
+                self.tableWidget_3.setItem(row_index, 0, QtWidgets.QTableWidgetItem(name))
+                self.tableWidget_3.setItem(row_index, 1, QtWidgets.QTableWidgetItem(project_sent_date))
+                self.tableWidget_3.setItem(row_index, 2, QtWidgets.QTableWidgetItem(project_return_date))
+                row_index += 1     
+        
+    def show_project_received_candidates(self):
+        # Projesi Gelmis Olanlar düğmesi işlevi
+        # Drive'dan projesi gelmiş adayları alıp tableWidget_3'e ekleyebilirsiniz.
+        
+        received_candidates_data = worksheet.get_all_values()  # Tüm verileri al, her satır bir liste içerir
+
+        # Eski verileri temizle
+        self.tableWidget_3.setRowCount(0)
+
+        # Verileri tableWidget_3'e ekleyin
+        row_index = 0
+        for data_row in received_candidates_data:
+            name = data_row[0]  # 1. sütun isimleri içeriyor
+            project_sent_date = data_row[1]  # 2. sütun proje gönderilme tarihini içeriyor
+            project_received_date = data_row[2]  # 3. sütun proje gelme tarihini içeriyor
+
+            # Sadece projesi gelmiş adayları ekleyin (proje gelme tarihi dolu olanlar)
+            if project_received_date: 
+                self.tableWidget_3.insertRow(row_index)
+                self.tableWidget_3.setItem(row_index, 0, QtWidgets.QTableWidgetItem(name))
+                self.tableWidget_3.setItem(row_index, 1, QtWidgets.QTableWidgetItem(project_sent_date))
+                self.tableWidget_3.setItem(row_index, 2, QtWidgets.QTableWidgetItem(project_received_date))
+                row_index += 1
+        
+        
+
+    def go_to_preferences_screen(self):
+        
+        # Tercihler Ekranina Geri Don düğmesi işlevi       
+        # Yeni bir tercihler ekranı penceresi oluşturun
+        self.preferences_window = QtWidgets.QMainWindow()
+
+        # Tercihler ekranı sınıfını örnekleyin
+        self.preferences_ui = crm_ara_ekran()
+
+        # Tercihler ekranının tasarımını oluşturun
+        self.preferences_ui.setupUi(self.preferences_window)
+
+        # Tercihler ekranını gösterin
+        self.preferences_window.show()
+
+
+        
+        
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -74,7 +196,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = crm_mulakat()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())

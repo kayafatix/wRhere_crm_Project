@@ -10,8 +10,44 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from crm_ara_ekran import *
 
-class Ui_MainWindow(object):
+import gspread
+
+# Kimlik doğrulama bilgilerini yükleyin
+credentials = 'C:\wRhere_crm_Project\wrherecrmproject-609f4fae20b3.json'
+
+# Gspread ile oturumu başlatın
+gc = gspread.service_account(filename=credentials)
+
+# Google Sheets elektronik tabloyu açın
+spreadsheet = gc.open('Kullanicilar')
+
+# Çalışma sayfasını seçin
+worksheet = spreadsheet.get_worksheet(0)  # İstenilen çalışma sayfasının indeksini değiştirin
+
+# Şimdi, çalışma sayfası ile çalışabilirsiniz
+
+
+cell_value = worksheet.acell('A1').value
+print(f'A1 Hücresi Değeri: {cell_value}')
+
+# Belirli bir satırı okuma (örneğin, 2. satır)
+row_values = worksheet.row_values(2)
+print(f'2. Satır Değerleri: {row_values}')
+
+# Belirli bir sütunu okuma (örneğin, A sütunu)
+column_values = worksheet.col_values(1)
+print(f'A Sütunu Değerleri: {column_values}')
+
+all_values = worksheet.get_all_values()
+
+print(all_values[0][1])
+
+
+
+
+class crm_giris(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(606, 336)
@@ -41,8 +77,18 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        
+        #GİRİŞ TIKLAMA YAPILDIĞI ZAMAN GİRİŞ KONTROLÜ İÇİN girisKontrol FONKSİYONUNA GİDİYOR. 
+        self.pushButton.clicked.connect(self.girisKontrol)
+        
+
+
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+
+
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -51,12 +97,38 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Kullanici Adiniz"))
         self.label_2.setText(_translate("MainWindow", "Sifre"))
 
+    def girisKontrol(self):
+        kullaniciAdi = self.lineEdit_3.text()
+        sifre=self.lineEdit_4.text()
+        kontrol=okGirisKontrol(kullaniciAdi,sifre, all_values)
+        #if kontrol:
+        if kontrol:
+            print("giriş Tamam")
+            self.crm_ara_ekran = crm_ara_ekran()
+            self.crm_ara_ekran.onceki_pencere = self
+            #self.teacher = teacher()    
+            self.crm_ara_ekran.setupUi(MainWindow)
+            MainWindow.show()
+            #sys.exit(app.exec_())
+            #self.hide()
+        
+
+def okGirisKontrol(kullaniciAdi,sifre,tumVeriler):
+    kontrol=False
+    for row in tumVeriler:
+        if (kullaniciAdi==row[0]):
+            if sifre==row[1]:
+                kontrol=True
+    return kontrol
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = crm_giris()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+    
+    
+    

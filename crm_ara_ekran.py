@@ -9,9 +9,12 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from crm_basvurular import *
+from crm_mulakat import *
+from crm_mentor import *
 
 
-class Ui_MainWindow(object):
+class crm_ara_ekran(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(726, 473)
@@ -38,6 +41,25 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        
+        self.pushButton.clicked.connect(self.go_to_crm_basvurular)
+        self.pushButton_2.clicked.connect(self.go_to_crm_mulakat)
+        self.pushButton_3.clicked.connect(self.go_to_crm_mentor)
+        
+    def go_to_crm_basvurular(self):
+        self.crm_basvurular = crm_basvurular() 
+        self.crm_basvurular.setupUi(MainWindow)
+        MainWindow.show()
+    
+    def go_to_crm_mulakat(self):
+        self.crm_mulakat = crm_mulakat() 
+        self.crm_mulakat.setupUi(MainWindow)
+        MainWindow.show()
+    
+    def go_to_crm_mentor(self):
+        self.crm_mentor = crm_mentor() 
+        self.crm_mentor.setupUi(MainWindow)
+        MainWindow.show()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -51,7 +73,7 @@ if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = crm_ara_ekran()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
